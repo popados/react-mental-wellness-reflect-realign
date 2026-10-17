@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reflect and Realign — Logo Assets</title>
+<link rel="icon" href="icon/icon-minimal.svg">
+<link rel="stylesheet" href="logo.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--rr-paper);
+    color: var(--rr-ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 72px 24px 120px; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: #6B6253; margin: 0 0 10px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif; font-weight: 600;
+    font-size: clamp(32px, 5vw, 46px); line-height: 1.1; margin: 0 0 14px;
+  }
+  .lede { font-size: 17px; color: #58513F; max-width: 60ch; margin: 0; }
+
+  h2 {
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 26px;
+    margin: 72px 0 6px; padding-top: 28px; border-top: 1px solid var(--rr-line);
+  }
+  h2:first-of-type { margin-top: 56px; }
+  .note { font-size: 14.5px; color: #6B6253; margin: 0 0 26px; max-width: 64ch; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+
+  .card {
+    background: var(--rr-paper-light);
+    border: 1px solid var(--rr-line);
+    border-radius: 16px;
+    padding: 24px 20px 16px;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+  }
+  .card.dark { background: var(--rr-ink); border-color: #3C3A36; }
+  .card img { display: block; max-width: 100%; }
+  .card .label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
+    letter-spacing: 0.14em; text-transform: uppercase; color: #6B6253;
+    text-align: center;
+  }
+  .card.dark .label { color: #B0A693; }
+
+  .icon-lg { width: 132px; height: 132px; border-radius: 29px; }
+  .wm-row img { width: 100%; max-width: 300px; }
+
+  .sizes { display: flex; align-items: flex-end; gap: 22px; flex-wrap: wrap; }
+  .sizes figure { margin: 0; text-align: center; }
+  .sizes figcaption {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    color: #6B6253; margin-top: 8px;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin-top: 8px; }
+  th, td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--rr-line); }
+  th { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
+       letter-spacing: 0.12em; text-transform: uppercase; color: #6B6253; font-weight: 500; }
+  td code { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #8A4733; }
+
+  pre {
+    background: var(--rr-ink); color: #E6DFD0; border-radius: 12px;
+    padding: 18px 20px; overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.7;
+  }
+  pre .c { color: #9A9080; }
+
+  .swatches { display: flex; flex-wrap: wrap; gap: 12px; }
+  .sw { width: 92px; }
+  .sw i { display: block; height: 56px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.08); }
+  .sw b { display: block; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px;
+          font-weight: 500; margin-top: 7px; }
+  .sw span { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #6B6253; }
+
+  .callout {
+    background: #F4E9D5; border-left: 3px solid var(--rr-clay);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; font-size: 14.5px;
+    margin: 22px 0 0; color: #4A4335;
+  }
+  .callout strong { color: var(--rr-ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Brand assets</p>
+  <h1>Reflect and Realign</h1>
+  <p class="lede">Four logo directions, each supplied as a wordmark, an app icon, a monogram and a horizontal lockup. All lettering is converted to vector outlines, so nothing here depends on a webfont loading.</p>
+
+  <h2>App icons</h2>
+  <p class="note">512&nbsp;×&nbsp;512 SVG, with PNG exports at 1024, 512 and 180.</p>
+  <div class="grid">
+    <div class="card">
+      <img class="icon-lg" src="icon/icon-negative-space.svg" alt="Negative space app icon">
+      <span class="label">Negative space</span>
+    </div>
+    <div class="card">
+      <img class="icon-lg" src="icon/icon-geometric.svg" alt="Geometric app icon">
+      <span class="label">Geometric</span>
+    </div>
+    <div class="card">
+      <img class="icon-lg" src="icon/icon-minimal.svg" alt="Minimalist app icon">
+      <span class="label">Minimalist</span>
+    </div>
+    <div class="card">
+      <img class="icon-lg" src="icon/icon-lineart.svg" alt="Line art app icon">
+      <span class="label">Line art</span>
+    </div>
+  </div>
+
+  <h2>How they hold up small</h2>
+  <p class="note">The same icon at four sizes. A home-screen icon renders around 60&nbsp;px, and a favicon at 32&nbsp;px — script lettering is fragile at both.</p>
+  <div class="sizes">
+    <figure><img class="rr-icon" style="width:128px;height:128px" src="icon/icon-minimal.svg" alt="Minimalist icon at 128 pixels"><figcaption>128</figcaption></figure>
+    <figure><img class="rr-icon" style="width:60px;height:60px" src="icon/icon-minimal.svg" alt="Minimalist icon at 60 pixels"><figcaption>60 · home screen</figcaption></figure>
+    <figure><img class="rr-icon" style="width:32px;height:32px" src="icon/icon-minimal.svg" alt="Minimalist icon at 32 pixels"><figcaption>32 · favicon</figcaption></figure>
+    <figure><img class="rr-icon" style="width:16px;height:16px" src="icon/icon-minimal.svg" alt="Minimalist icon at 16 pixels"><figcaption>16</figcaption></figure>
+  </div>
+  <p class="callout"><strong>Minimalist and negative space survive small sizes.</strong> The geometric tick marks and the line-art flourish turn to mush below roughly 64&nbsp;px. If you pick either of those, they need a simplified small-size variant with the fine detail stripped out — standard practice for an icon set.</p>
+
+  <h2>Wordmarks</h2>
+  <p class="note">Transparent, painted with <code>currentColor</code>, so colour comes from CSS rather than being baked into the file.</p>
+  <div class="grid wm-row">
+    <div class="card">
+      <img src="wordmark/wordmark-negative-space.svg" alt="Reflect and Realign wordmark, Pinyon Script">
+      <span class="label">Negative space · Pinyon</span>
+    </div>
+    <div class="card">
+      <img src="wordmark/wordmark-geometric.svg" alt="Reflect and Realign wordmark, Italianno">
+      <span class="label">Geometric · Italianno</span>
+    </div>
+    <div class="card">
+      <img src="wordmark/wordmark-minimal.svg" alt="Reflect and Realign wordmark, Great Vibes">
+      <span class="label">Minimalist · Great Vibes</span>
+    </div>
+    <div class="card">
+      <img src="wordmark/wordmark-lineart.svg" alt="Reflect and Realign wordmark, Parisienne">
+      <span class="label">Line art · Parisienne</span>
+    </div>
+  </div>
+
+  <h2>On a dark ground</h2>
+  <p class="note">Because the wordmark uses <code>currentColor</code>, the same file works on either ground.</p>
+  <div class="grid wm-row">
+    <div class="card dark">
+      <img src="wordmark/wordmark-minimal.svg" alt="Wordmark on dark" style="filter: invert(1) sepia(0.2)">
+      <span class="label">Inline SVG inherits colour · an &lt;img&gt; does not</span>
+    </div>
+    <div class="card dark">
+      <img class="icon-lg" src="icon/icon-negative-space.svg" alt="Negative space icon on dark">
+      <span class="label">Negative space on ink</span>
+    </div>
+  </div>
+  <p class="callout">An <code>&lt;img&gt;</code> tag can't inherit <code>currentColor</code> — the browser renders the SVG in an isolated document. To recolour a wordmark, <strong>inline the SVG markup</strong> or use a CSS <code>mask</code>. Both snippets are below.</p>
+
+  <h2>Using them</h2>
+  <pre><span class="c">&lt;!-- 1. Inline the SVG so currentColor works --&gt;</span>
+&lt;span class="rr-wordmark rr-wordmark--clay"&gt;
+  &lt;svg viewBox="0 0 ..."&gt;&lt;path fill="currentColor" d="..."/&gt;&lt;/svg&gt;
+&lt;/span&gt;
+
+<span class="c">&lt;!-- 2. Or mask it, which keeps the file external --&gt;</span>
+&lt;style&gt;
+  .wordmark-masked {
+    width: 240px; height: 42px;
+    background: var(--rr-clay);
+    mask: url(wordmark/wordmark-minimal.svg) center / contain no-repeat;
+    -webkit-mask: url(wordmark/wordmark-minimal.svg) center / contain no-repeat;
+  }
+&lt;/style&gt;
+
+<span class="c">&lt;!-- 3. Favicon and home-screen icon --&gt;</span>
+&lt;link rel="icon" href="icon/icon-minimal.svg"&gt;
+&lt;link rel="apple-touch-icon" href="png/icon-minimal-180.png"&gt;</pre>
+
+  <h2>Palette</h2>
+  <div class="swatches">
+    <div class="sw"><i style="background:#2B2A28"></i><b>Ink</b><span>#2B2A28</span></div>
+    <div class="sw"><i style="background:#EDE6D6"></i><b>Paper</b><span>#EDE6D6</span></div>
+    <div class="sw"><i style="background:#FBF8F1"></i><b>Paper lt</b><span>#FBF8F1</span></div>
+    <div class="sw"><i style="background:#A85C42"></i><b>Clay</b><span>#A85C42</span></div>
+    <div class="sw"><i style="background:#C06A4C"></i><b>Clay lt</b><span>#C06A4C</span></div>
+    <div class="sw"><i style="background:#56624A"></i><b>Moss</b><span>#56624A</span></div>
+    <div class="sw"><i style="background:#4A5A66"></i><b>Slate</b><span>#4A5A66</span></div>
+  </div>
+
+  <h2>What's in the folder</h2>
+  <table>
+    <thead><tr><th>Path</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td><code>wordmark/</code></td><td>Full name, transparent, currentColor</td></tr>
+      <tr><td><code>icon/</code></td><td>512 × 512 app icons with their grounds</td></tr>
+      <tr><td><code>monogram/</code></td><td>R&amp;R letters alone — for badges, avatars, stamps</td></tr>
+      <tr><td><code>lockup/</code></td><td>Icon beside the name, for headers and footers</td></tr>
+      <tr><td><code>png/</code></td><td>Raster icons at 1024, 512 and 180</td></tr>
+      <tr><td><code>logo.css</code></td><td>Palette tokens and sizing helpers</td></tr>
+    </tbody>
+  </table>
+
+</div>
+</body>
+</html>

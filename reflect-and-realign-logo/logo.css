@@ -1,0 +1,84 @@
+/* Reflect and Realign — logo tokens and helpers
+   Drop this in, point the paths at wherever you host the SVGs. */
+
+:root {
+  /* Brand palette */
+  --rr-ink:          #2B2A28;
+  --rr-paper:        #EDE6D6;
+  --rr-paper-light:  #FBF8F1;
+  --rr-line:         #DCD2BE;
+  --rr-clay:         #A85C42;
+  --rr-clay-light:   #C06A4C; /* clay for use on dark grounds */
+  --rr-moss:         #56624A;
+  --rr-slate:        #4A5A66;
+
+  /* Minimum sizes — below these the script lettering breaks up */
+  --rr-wordmark-min-width: 160px;
+  --rr-icon-min-size: 32px;
+}
+
+/* ---------------------------------------------------------------- wordmark
+   The wordmark SVGs are transparent and painted with currentColor, so colour
+   is set with `color`, not `fill`. */
+
+.rr-wordmark {
+  display: inline-block;
+  width: 240px;
+  min-width: var(--rr-wordmark-min-width);
+  height: auto;
+  color: var(--rr-ink);
+}
+
+.rr-wordmark--on-dark { color: var(--rr-paper); }
+.rr-wordmark--clay    { color: var(--rr-clay); }
+
+/* Clear space: keep a margin of at least 25% of the wordmark's height free
+   of other elements on all four sides. */
+.rr-wordmark--spaced { margin: 0.25em; }
+
+/* ------------------------------------------------------------------- icon */
+
+.rr-icon {
+  display: inline-block;
+  width: 64px;
+  height: 64px;
+  min-width: var(--rr-icon-min-size);
+  min-height: var(--rr-icon-min-size);
+  border-radius: 22.3%; /* matches the SVG plate, for CSS-clipped contexts */
+}
+
+/* --------------------------------------------------------------- monogram
+   R&R letters alone, transparent, currentColor. Use inside a shape you
+   colour yourself — a button, a badge, an avatar. */
+
+.rr-monogram {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  color: currentColor;
+}
+
+/* ----------------------------------------------------------------- lockup */
+
+.rr-lockup {
+  display: inline-block;
+  height: 40px;
+  width: auto;
+  color: var(--rr-ink);
+}
+
+.rr-lockup--on-dark { color: var(--rr-paper); }
+
+/* ------------------------------------------------------------ dark scheme */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .rr-wordmark,
+  :root:not([data-theme="light"]) .rr-lockup {
+    color: var(--rr-paper);
+  }
+}
+
+:root[data-theme="dark"] .rr-wordmark,
+:root[data-theme="dark"] .rr-lockup {
+  color: var(--rr-paper);
+}

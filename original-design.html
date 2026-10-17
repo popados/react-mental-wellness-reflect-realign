@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Basecamp — a quiet check-in</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
+
+  :root{
+    --paper:#EDE6D6;
+    --paper-light:#FBF8F1;
+    --paper-deep:#DED5C2;
+    --ink:#2B2A28;
+    --ink-soft:#6B6558;
+    --line:#D9CFB8;
+    --moss:#56624A;
+    --moss-deep:#3E4736;
+    --moss-tint:#E3E8DC;
+    --clay:#A85C42;
+    --clay-tint:#F1E0D6;
+    --slate:#4A5A66;
+    --slate-tint:#E0E7EA;
+    --rose:#AC7E92;
+    --rose-tint:#F1E2E8;
+    --gold:#C99A4A;
+    --gold-tint:#F4E9D5;
+    --grey:#8C8478;
+    --grey-tint:#EEEAE0;
+    --shadow: 0 10px 28px rgba(43,42,40,0.10);
+    --radius: 20px;
+    --radius-sm: 13px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper-deep);
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .app{
+    width:100%;
+    max-width:460px;
+    min-height:100vh;
+    background:var(--paper);
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  @media(min-width:600px){
+    body{padding:28px 12px;}
+    .app{min-height:calc(100vh - 56px);max-height:900px;border-radius:28px;box-shadow:0 30px 60px rgba(30,28,24,0.28);}
+  }
+
+  /* ---------- decorative contour texture ---------- */
+  .contours{position:absolute;top:0;left:0;width:100%;height:210px;pointer-events:none;opacity:0.55;z-index:0;}
+  .contours path{fill:none;stroke:var(--line);stroke-width:1.4;}
+
+  .squiggle{display:block;margin:10px 0 4px;opacity:0.9;}
+  .squiggle path{fill:none;stroke:var(--clay);stroke-width:2;stroke-linecap:round;}
+
+  /* ---------- layout ---------- */
+  main{flex:1;overflow-y:auto;position:relative;z-index:1;padding-bottom:96px;-webkit-overflow-scrolling:touch;}
+  main::-webkit-scrollbar{width:0;}
+
+  .screen{display:none;padding:28px 22px 12px;}
+  .screen.active{display:block;animation:fadeUp .45s cubic-bezier(.2,.7,.3,1) both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+  h1.title{
+    font-family:'Fraunces',serif;
+    font-optical-sizing:auto;
+    font-weight:560;
+    font-size:30px;
+    line-height:1.15;
+    margin:0;
+    color:var(--ink);
+  }
+  .subtitle{color:var(--ink-soft);font-size:14px;margin-top:6px;}
+
+  /* ---------- cards & buttons ---------- */
+  .card{
+    background:var(--paper-light);
+    border-radius:var(--radius);
+    padding:20px;
+    box-shadow:var(--shadow);
+    border:1px solid rgba(43,42,40,0.05);
+  }
+  .btn{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    border:none;
+    border-radius:100px;
+    padding:13px 22px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .btn:active{transform:scale(0.96);}
+  .btn-primary{background:var(--moss);color:var(--paper-light);}
+  .btn-primary:hover{background:var(--moss-deep);}
+  .btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);}
+  .btn-block{width:100%;justify-content:center;}
+  .btn-sm{padding:8px 14px;font-size:13px;}
+
+  /* ---------- home ---------- */
+  .greet-row{display:flex;justify-content:space-between;align-items:flex-start;}
+
+  .trail{display:flex;align-items:center;gap:0;margin:22px 0 4px;}
+  .trail-dot-wrap{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+  .trail-dot{width:13px;height:13px;border-radius:50%;background:var(--paper-deep);border:2px solid var(--line);z-index:1;}
+  .trail-dot.done{background:var(--moss);border-color:var(--moss);}
+  .trail-dot.today{box-shadow:0 0 0 4px var(--moss-tint);}
+  .trail-line{position:absolute;top:6px;left:-50%;width:100%;height:2px;background:var(--line);z-index:0;}
+  .trail-dot-wrap:first-child .trail-line{display:none;}
+  .trail-label{font-size:10px;color:var(--ink-soft);margin-top:6px;font-family:'IBM Plex Mono',monospace;}
+
+  .section-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-soft);margin:26px 0 10px;}
+
+  .affirm-preview{background:var(--clay-tint);border-radius:var(--radius);padding:18px 20px;cursor:pointer;border:1px solid rgba(168,92,66,0.15);}
+  .affirm-preview p{font-family:'Fraunces',serif;font-size:18px;font-weight:500;line-height:1.4;margin:0;color:var(--ink);}
+  .affirm-preview .tap-hint{margin-top:10px;font-size:12px;color:var(--clay);font-weight:600;}
+
+  .mood-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .chip{
+    font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;
+    padding:9px 15px;border-radius:100px;border:1.5px solid var(--line);
+    background:var(--paper-light);color:var(--ink);cursor:pointer;
+    transition:all .15s ease;
+  }
+  .chip.sel{color:var(--paper-light);border-color:transparent;}
+  .chip[data-mood="Bright"].sel{background:var(--gold);}
+  .chip[data-mood="Steady"].sel{background:var(--moss);}
+  .chip[data-mood="Foggy"].sel{background:var(--grey);}
+  .chip[data-mood="Tender"].sel{background:var(--rose);}
+  .chip[data-mood="Heavy"].sel{background:var(--slate);}
+  .chip.flash{animation:flash .5s ease;}
+  @keyframes flash{0%{transform:scale(1);}40%{transform:scale(1.08);}100%{transform:scale(1);}}
+
+  .cta-band{background:var(--moss);border-radius:var(--radius);padding:20px;color:var(--paper-light);margin-top:26px;}
+  .cta-band p{margin:0 0 12px;font-size:14.5px;line-height:1.45;opacity:0.92;}
+  .cta-band .btn-ghost{border-color:rgba(251,248,241,0.5);color:var(--paper-light);}
+
+  .footnote{font-size:12px;color:var(--ink-soft);line-height:1.5;margin-top:30px;padding-top:16px;border-top:1px solid var(--line);}
+  .reset-link{background:none;border:none;color:var(--ink-soft);text-decoration:underline;font-size:12px;cursor:pointer;padding:0;margin-top:10px;font-family:'Inter',sans-serif;}
+
+  /* ---------- affirmation screen ---------- */
+  .affirm-card{margin-top:18px;padding:36px 26px;text-align:center;position:relative;min-height:180px;display:flex;align-items:center;justify-content:center;}
+  .affirm-card .mark{position:absolute;top:14px;left:18px;font-family:'Fraunces',serif;font-size:40px;color:var(--clay);opacity:0.35;line-height:1;}
+  #affirm-text{font-family:'Fraunces',serif;font-weight:500;font-size:23px;line-height:1.45;color:var(--ink);opacity:1;transition:opacity .25s ease;}
+  #affirm-text.fading{opacity:0;}
+  .affirm-actions{display:flex;gap:10px;margin-top:18px;}
+  .heart-btn{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper-light);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .heart-btn svg{width:19px;height:19px;stroke:var(--clay);fill:none;stroke-width:1.8;}
+  .heart-btn.saved svg{fill:var(--clay);}
+  .fav-list{margin-top:8px;}
+  .fav-item{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:13px 0;border-bottom:1px solid var(--line);}
+  .fav-item:last-child{border-bottom:none;}
+  .fav-item p{margin:0;font-family:'Fraunces',serif;font-size:14.5px;line-height:1.4;}
+  .x-btn{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:16px;line-height:1;padding:2px;flex-shrink:0;}
+  .empty{color:var(--ink-soft);font-size:13.5px;padding:8px 0;}
+
+  /* ---------- checks screen ---------- */
+  .energy-row{display:flex;gap:8px;margin-top:8px;}
+  .dot-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper-light);cursor:pointer;}
+  .dot-btn.sel{background:var(--slate);border-color:var(--slate);}
+  .field-label{font-size:13px;font-weight:600;color:var(--ink-soft);margin:16px 0 4px;}
+  .note-input{width:100%;border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:11px 13px;font-family:'Inter',sans-serif;font-size:14px;background:var(--paper-light);color:var(--ink);resize:none;}
+  .note-input:focus{outline:none;border-color:var(--slate);}
+
+  .terrain-wrap{margin-top:10px;}
+  .history-item{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--line);}
+  .history-item:last-child{border-bottom:none;}
+  .mood-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .history-item .meta{flex:1;min-width:0;}
+  .history-item .meta .top{font-size:13.5px;font-weight:600;}
+  .history-item .meta .note{font-size:12.5px;color:var(--ink-soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .history-item .when{font-size:11.5px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;flex-shrink:0;}
+
+  /* ---------- grounding screen ---------- */
+  .pattern-switch{display:flex;gap:6px;background:var(--grey-tint);border-radius:100px;padding:4px;margin-top:16px;}
+  .pattern-btn{flex:1;text-align:center;font-size:12.5px;font-weight:600;padding:9px 4px;border-radius:100px;cursor:pointer;color:var(--ink-soft);}
+  .pattern-btn.sel{background:var(--paper-light);color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,0.06);}
+
+  .ring-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:34px 0 18px;}
+  .ring-wrap{transform:scale(0.85);transition:transform 4s ease-in-out;}
+  .ring-wrap svg{width:220px;height:220px;}
+  .ring-wrap circle{fill:none;}
+  .phase-label{font-family:'Fraunces',serif;font-size:21px;margin-top:22px;color:var(--ink);}
+  .phase-count{font-family:'IBM Plex Mono',monospace;font-size:34px;color:var(--moss-deep);margin-top:4px;}
+  .cycle-count{font-size:12.5px;color:var(--ink-soft);margin-top:6px;font-family:'IBM Plex Mono',monospace;}
+  .ground-controls{display:flex;gap:10px;justify-content:center;margin-top:22px;}
+
+  .senses-card{margin-top:28px;}
+  .senses-toggle{display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+  .senses-toggle h3{font-family:'Fraunces',serif;font-size:16px;font-weight:560;margin:0;}
+  .senses-toggle .chev{transition:transform .25s ease;color:var(--ink-soft);}
+  .senses-toggle.open .chev{transform:rotate(180deg);}
+  .senses-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+  .senses-body.open{max-height:400px;}
+  .sense-step{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--line);}
+  .sense-step .num{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--clay);width:20px;flex-shrink:0;}
+  .sense-step label{font-size:13.5px;flex:1;cursor:pointer;}
+  .sense-step input{accent-color:var(--moss);width:17px;height:17px;flex-shrink:0;}
+
+  /* ---------- journal ---------- */
+  .compose{margin-top:16px;display:none;}
+  .compose.open{display:block;}
+  .compose input, .compose textarea{
+    width:100%;border:1.5px solid var(--line);border-radius:var(--radius-sm);
+    padding:12px 14px;font-family:'Inter',sans-serif;font-size:14px;background:var(--paper-light);color:var(--ink);
+  }
+  .compose input{margin-bottom:10px;font-weight:600;}
+  .compose textarea{min-height:120px;resize:vertical;line-height:1.5;}
+  .compose-actions{display:flex;gap:10px;margin-top:12px;}
+
+  .entry{border-bottom:1px solid var(--line);padding:16px 0;}
+  .entry:last-child{border-bottom:none;}
+  .entry-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;cursor:pointer;}
+  .entry-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.06em;}
+  .entry-title{font-family:'Fraunces',serif;font-size:16.5px;font-weight:560;margin:4px 0 0;}
+  .entry-preview{font-size:13.5px;color:var(--ink-soft);margin-top:5px;line-height:1.5;}
+  .entry-full{font-size:13.5px;color:var(--ink);margin-top:8px;line-height:1.6;display:none;white-space:pre-wrap;}
+  .entry.open .entry-full{display:block;}
+  .entry.open .entry-preview{display:none;}
+  .entry-actions{display:flex;justify-content:flex-end;margin-top:6px;}
+
+  /* ---------- nav ---------- */
+  .tabbar{
+    position:absolute;bottom:0;left:0;right:0;z-index:2;
+    display:flex;background:var(--paper-light);
+    border-top:1px solid var(--line);
+    padding:9px 6px 12px;
+  }
+  .tab{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+    background:none;border:none;cursor:pointer;color:var(--ink-soft);
+    padding:5px 2px;font-family:'Inter',sans-serif;
+  }
+  .tab svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+  .tab span{font-size:10px;font-weight:600;}
+  .tab.active{color:var(--moss-deep);}
+
+  .toast{
+    position:absolute;bottom:92px;left:50%;transform:translateX(-50%) translateY(8px);
+    background:var(--ink);color:var(--paper-light);padding:10px 18px;border-radius:100px;
+    font-size:12.5px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s ease;z-index:5;
+    white-space:nowrap;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ HOME ============ -->
+  <main id="screens">
+  <section class="screen active" id="screen-home">
+    <svg class="contours" viewBox="0 0 460 210" preserveAspectRatio="none">
+      <path d="M-10,40 Q100,10 230,40 T480,40" />
+      <path d="M-10,80 Q120,55 230,80 T480,80" opacity="0.7"/>
+      <path d="M-10,120 Q90,150 230,120 T480,120" opacity="0.5"/>
+    </svg>
+    <div class="eyebrow" id="home-eyebrow">BASECAMP</div>
+    <div class="greet-row">
+      <div>
+        <h1 class="title" id="greeting">Good afternoon</h1>
+        <div class="subtitle" id="today-date"></div>
+      </div>
+    </div>
+
+    <div class="trail" id="trail"></div>
+
+    <div class="section-label">Today's affirmation</div>
+    <div class="affirm-preview" onclick="goTo('affirmation')">
+      <p id="home-affirm-text"></p>
+      <div class="tap-hint">Read it slowly →</div>
+    </div>
+
+    <div class="section-label">How are you, right now?</div>
+    <div class="mood-row" id="home-mood-row"></div>
+
+    <div class="cta-band">
+      <p>When it feels like too much, a few minutes of steady breathing can bring you back.</p>
+      <button class="btn btn-ghost" onclick="goTo('grounding')">Start grounding exercise</button>
+    </div>
+
+    <div class="footnote">
+      This is a private space for reflection — not a substitute for professional care. If things ever feel like too much, reaching out to someone you trust or a professional can help.
+      <br><button class="reset-link" onclick="resetAllData()">Clear my saved data</button>
+    </div>
+  </section>
+
+  <!-- ============ AFFIRMATION ============ -->
+  <section class="screen" id="screen-affirmation">
+    <div class="eyebrow">Daily affirmation</div>
+    <h1 class="title">Words for today</h1>
+    <svg class="squiggle" width="60" height="10" viewBox="0 0 60 10"><path d="M1,5 Q10,0 20,5 T39,5 T58,5"/></svg>
+
+    <div class="card affirm-card">
+      <span class="mark">“</span>
+      <p id="affirm-text"></p>
+    </div>
+    <div class="affirm-actions">
+      <button class="btn btn-primary" id="new-affirm-btn" onclick="newAffirmation()">New affirmation</button>
+      <button class="heart-btn" id="heart-btn" onclick="toggleFavorite()" aria-label="Save affirmation">
+        <svg viewBox="0 0 24 24"><path d="M12 20s-7.5-4.7-10-9.4C.4 6.8 2.4 3.5 6 3.5c2.3 0 3.8 1.3 6 3.7 2.2-2.4 3.7-3.7 6-3.7 3.6 0 5.6 3.3 4 7.1C19.5 15.3 12 20 12 20z"/></svg>
+      </button>
+    </div>
+
+    <div class="section-label">Saved</div>
+    <div class="fav-list" id="fav-list"></div>
+  </section>
+
+  <!-- ============ CHECKS ============ -->
+  <section class="screen" id="screen-checks">
+    <div class="eyebrow">Wellness checks</div>
+    <h1 class="title">How's your terrain?</h1>
+    <svg class="squiggle" width="60" height="10" viewBox="0 0 60 10"><path d="M1,5 Q10,0 20,5 T39,5 T58,5"/></svg>
+
+    <div class="card">
+      <div class="field-label" style="margin-top:0;">Mood</div>
+      <div class="mood-row" id="checks-mood-row"></div>
+      <div class="field-label">Energy</div>
+      <div class="energy-row" id="energy-row"></div>
+      <div class="field-label">Note (optional)</div>
+      <textarea class="note-input" id="check-note" rows="2" placeholder="Anything shaping today..."></textarea>
+      <button class="btn btn-primary btn-block" style="margin-top:16px;" onclick="logCheck()">Log check-in</button>
+    </div>
+
+    <div class="section-label">Your week</div>
+    <div class="card terrain-wrap">
+      <svg id="terrain-chart" width="100%" height="90" viewBox="0 0 400 90" preserveAspectRatio="none"></svg>
+    </div>
+
+    <div class="section-label">Recent</div>
+    <div class="card" id="checks-history"></div>
+  </section>
+
+  <!-- ============ GROUNDING ============ -->
+  <section class="screen" id="screen-grounding">
+    <div class="eyebrow">Grounding exercise</div>
+    <h1 class="title">Breathe with the rings</h1>
+    <svg class="squiggle" width="60" height="10" viewBox="0 0 60 10"><path d="M1,5 Q10,0 20,5 T39,5 T58,5"/></svg>
+
+    <div class="pattern-switch" id="pattern-switch">
+      <div class="pattern-btn sel" data-pattern="box">Box · 4-4-4-4</div>
+      <div class="pattern-btn" data-pattern="calm">Calm · 4-7-8</div>
+      <div class="pattern-btn" data-pattern="simple">Simple · 4-6</div>
+    </div>
+
+    <div class="ring-stage">
+      <div class="ring-wrap" id="ring-wrap">
+        <svg viewBox="0 0 220 220">
+          <circle cx="110" cy="110" r="100" stroke="var(--line)" stroke-width="1.5" opacity="0.5"/>
+          <circle cx="110" cy="110" r="76" stroke="var(--line)" stroke-width="1.5" opacity="0.7"/>
+          <circle cx="110" cy="110" r="52" stroke="var(--moss)" stroke-width="1.8" opacity="0.75"/>
+          <circle cx="110" cy="110" r="28" stroke="var(--moss-deep)" stroke-width="2.2"/>
+        </svg>
+      </div>
+      <div class="phase-label" id="phase-label">Ready</div>
+      <div class="phase-count" id="phase-count">—</div>
+      <div class="cycle-count" id="cycle-count">0 cycles completed</div>
+      <div class="ground-controls">
+        <button class="btn btn-primary" id="breathe-toggle" onclick="toggleBreathing()">Start</button>
+        <button class="btn btn-ghost" onclick="resetBreathing()">Reset</button>
+      </div>
+    </div>
+
+    <div class="card senses-card">
+      <div class="senses-toggle" id="senses-toggle" onclick="toggleSenses()">
+        <h3>Prefer your senses? Try 5-4-3-2-1</h3>
+        <span class="chev">⌄</span>
+      </div>
+      <div class="senses-body" id="senses-body">
+        <div class="sense-step"><span class="num">5</span><input type="checkbox" id="s5"><label for="s5">Things you can see around you</label></div>
+        <div class="sense-step"><span class="num">4</span><input type="checkbox" id="s4"><label for="s4">Things you can touch or feel</label></div>
+        <div class="sense-step"><span class="num">3</span><input type="checkbox" id="s3"><label for="s3">Things you can hear right now</label></div>
+        <div class="sense-step"><span class="num">2</span><input type="checkbox" id="s2"><label for="s2">Things you can smell</label></div>
+        <div class="sense-step"><span class="num">1</span><input type="checkbox" id="s1"><label for="s1">Thing you can taste</label></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ JOURNAL ============ -->
+  <section class="screen" id="screen-journal">
+    <div class="eyebrow">Field log</div>
+    <div class="greet-row">
+      <h1 class="title">Journal</h1>
+      <button class="btn btn-primary btn-sm" id="new-entry-btn" onclick="toggleCompose()">+ New entry</button>
+    </div>
+    <svg class="squiggle" width="60" height="10" viewBox="0 0 60 10"><path d="M1,5 Q10,0 20,5 T39,5 T58,5"/></svg>
+
+    <div class="card compose" id="compose">
+      <input type="text" id="entry-title" placeholder="Title (optional)">
+      <textarea id="entry-body" placeholder=""></textarea>
+      <div class="compose-actions">
+        <button class="btn btn-primary" onclick="saveEntry()">Save entry</button>
+        <button class="btn btn-ghost" onclick="toggleCompose()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="card" id="journal-list" style="margin-top:16px;"></div>
+  </section>
+  </main>
+
+  <!-- ============ NAV ============ -->
+  <nav class="tabbar">
+    <button class="tab active" data-screen="home" onclick="goTo('home')">
+      <svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h5v-6h2v6h5v-9"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="tab" data-screen="affirmation" onclick="goTo('affirmation')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.3"/><path d="M12 2.5v3M12 18.5v3M4.5 4.5l2.1 2.1M17.4 17.4l2.1 2.1M2.5 12h3M18.5 12h3M4.5 19.5l2.1-2.1M17.4 6.6l2.1-2.1"/></svg>
+      <span>Affirm</span>
+    </button>
+    <button class="tab" data-screen="checks" onclick="goTo('checks')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.3 2.3L16 9"/></svg>
+      <span>Checks</span>
+    </button>
+    <button class="tab" data-screen="grounding" onclick="goTo('grounding')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="12" r="6" opacity="0.65"/><circle cx="12" cy="12" r="9.4" opacity="0.4"/></svg>
+      <span>Ground</span>
+    </button>
+    <button class="tab" data-screen="journal" onclick="goTo('journal')">
+      <svg viewBox="0 0 24 24"><path d="M4 5.3c2.2-1 5-1 8 0v13.4c-3-1-5.8-1-8 0z"/><path d="M20 5.3c-2.2-1-5-1-8 0v13.4c3-1 5.8-1 8 0z"/></svg>
+      <span>Journal</span>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const AFFIRMATIONS = [
+  "You don't have to have it figured out today.",
+  "Rest is not something you have to earn.",
+  "You are allowed to take up space in your own life.",
+  "Small steps still move you forward.",
+  "Your feelings are information, not instructions.",
+  "You can be a work in progress and still be worthy of care.",
+  "It's okay to need more time than you expected.",
+  "You've made it through every hard day so far.",
+  "Not every thought deserves your belief.",
+  "You are more than your worst moment.",
+  "Asking for help is a sign of strength, not weakness.",
+  "You get to decide what today means, not yesterday.",
+  "Your pace is not a problem to solve.",
+  "You are allowed to change your mind.",
+  "Progress rarely looks like a straight line.",
+  "You don't owe anyone a performance of okay.",
+  "Being tired doesn't mean you're doing it wrong.",
+  "You can hold two feelings at once.",
+  "You are not behind. You are exactly where you are.",
+  "Softness is not the same as weakness.",
+  "You can start again as many times as you need to.",
+  "Your worth isn't measured by your productivity.",
+  "It's okay to take the long way today.",
+  "You are doing better than your inner critic says.",
+  "You don't have to earn rest by exhausting yourself first.",
+  "Some days, showing up is the whole victory.",
+  "You are allowed to outgrow old versions of yourself.",
+  "Comparison steals the calm you could be feeling.",
+  "You can set the pace that keeps you well.",
+  "Today doesn't have to be perfect to be good."
+];
+
+const MOODS = [
+  {name:"Bright", color:"var(--gold)", score:5},
+  {name:"Steady", color:"var(--moss)", score:4},
+  {name:"Foggy", color:"var(--grey)", score:3},
+  {name:"Tender", color:"var(--rose)", score:2},
+  {name:"Heavy", color:"var(--slate)", score:1}
+];
+const MOOD_HEX = {Bright:"#C99A4A", Steady:"#56624A", Foggy:"#8C8478", Tender:"#AC7E92", Heavy:"#4A5A66"};
+
+const JOURNAL_PROMPTS = [
+  "What's taking up the most space in your head today?",
+  "What went better than expected recently?",
+  "What do you need to hear right now?",
+  "What's one thing you're carrying that isn't yours to carry?",
+  "Describe today in weather terms.",
+  "What would you tell a friend feeling this way?"
+];
+
+/* ================= STATE ================= */
+let state = { journal: [], checks: [], favorites: [] };
+let currentScreen = 'home';
+let affirmIndex = 0;
+let selectedHomeMood = null;
+let selectedCheckMood = null;
+let selectedEnergy = 3;
+let composeOpen = false;
+
+/* ================= STORAGE ================= */
+async function storageGet(key){
+  try{
+    const r = await window.storage.get(key, false);
+    return r ? JSON.parse(r.value) : [];
+  }catch(e){ return []; }
+}
+async function storageSet(key, value){
+  try{ await window.storage.set(key, JSON.stringify(value), false); }
+  catch(e){ console.error('Storage save failed', e); showToast("Couldn't save — try again"); }
+}
+async function storageDeleteAll(){
+  for(const k of ['mh:journal','mh:checks','mh:favorites']){
+    try{ await window.storage.delete(k, false); }catch(e){}
+  }
+}
+
+async function loadAll(){
+  const [journal, checks, favorites] = await Promise.all([
+    storageGet('mh:journal'), storageGet('mh:checks'), storageGet('mh:favorites')
+  ]);
+  state.journal = journal || [];
+  state.checks = checks || [];
+  state.favorites = favorites || [];
+  renderAll();
+}
+
+function resetAllData(){
+  if(!confirm("This clears every affirmation you've saved, every check-in, and every journal entry. This can't be undone. Continue?")) return;
+  storageDeleteAll();
+  state = { journal: [], checks: [], favorites: [] };
+  renderAll();
+  showToast("Your data has been cleared");
+}
+
+/* ================= NAV ================= */
+function goTo(screen){
+  currentScreen = screen;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  document.querySelector('.tab[data-screen="' + screen + '"]').classList.add('active');
+  document.getElementById('screens').scrollTop = 0;
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ================= DATE HELPERS ================= */
+function dayOfYear(d){
+  const start = new Date(d.getFullYear(), 0, 0);
+  return Math.floor((d - start) / 86400000);
+}
+function isSameDay(a, b){
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+function fmtDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined,{month:'short', day:'numeric'});
+}
+function fmtTime(iso){
+  const d = new Date(iso);
+  return d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+}
+
+/* ================= HOME ================= */
+function renderHome(){
+  const now = new Date();
+  const hr = now.getHours();
+  const greetEl = document.getElementById('greeting');
+  greetEl.textContent = hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
+  document.getElementById('today-date').textContent = now.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
+
+  const todaysIdx = dayOfYear(now) % AFFIRMATIONS.length;
+  document.getElementById('home-affirm-text').textContent = AFFIRMATIONS[todaysIdx];
+
+  // trail: last 7 days
+  const trail = document.getElementById('trail');
+  trail.innerHTML = '';
+  for(let i=6;i>=0;i--){
+    const d = new Date(now); d.setDate(now.getDate()-i);
+    const done = state.checks.some(c => isSameDay(new Date(c.date), d));
+    const wrap = document.createElement('div');
+    wrap.className = 'trail-dot-wrap';
+    wrap.innerHTML = '<div class="trail-line"></div><div class="trail-dot ' + (done?'done ':'') + (i===0?'today':'') + '"></div><div class="trail-label">' + d.toLocaleDateString(undefined,{weekday:'narrow'}) + '</div>';
+    trail.appendChild(wrap);
+  }
+
+  // quick mood row
+  const row = document.getElementById('home-mood-row');
+  row.innerHTML = '';
+  MOODS.forEach(m => {
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.dataset.mood = m.name;
+    chip.textContent = m.name;
+    chip.onclick = () => quickLogFromHome(m.name, chip);
+    row.appendChild(chip);
+  });
+}
+
+function quickLogFromHome(mood, chipEl){
+  chipEl.classList.add('sel','flash');
+  setTimeout(()=>chipEl.classList.remove('flash'), 500);
+  const entry = { id: Date.now(), date: new Date().toISOString(), mood, energy: 3, note: '' };
+  state.checks.push(entry);
+  storageSet('mh:checks', state.checks);
+  showToast("Logged: " + mood);
+  renderHome();
+  renderChecks();
+}
+
+/* ================= AFFIRMATION ================= */
+function renderAffirmation(){
+  const now = new Date();
+  affirmIndex = dayOfYear(now) % AFFIRMATIONS.length;
+  setAffirmText(AFFIRMATIONS[affirmIndex]);
+  renderFavorites();
+}
+function setAffirmText(text){
+  const el = document.getElementById('affirm-text');
+  el.textContent = text;
+  updateHeartState(text);
+}
+function newAffirmation(){
+  let next;
+  do { next = Math.floor(Math.random()*AFFIRMATIONS.length); } while(AFFIRMATIONS[next] === document.getElementById('affirm-text').textContent && AFFIRMATIONS.length>1);
+  const el = document.getElementById('affirm-text');
+  el.classList.add('fading');
+  setTimeout(()=>{
+    setAffirmText(AFFIRMATIONS[next]);
+    el.classList.remove('fading');
+  }, 220);
+}
+function updateHeartState(text){
+  const heart = document.getElementById('heart-btn');
+  heart.classList.toggle('saved', state.favorites.includes(text));
+}
+function toggleFavorite(){
+  const text = document.getElementById('affirm-text').textContent;
+  const idx = state.favorites.indexOf(text);
+  if(idx > -1){ state.favorites.splice(idx,1); showToast("Removed from saved"); }
+  else{ state.favorites.push(text); showToast("Saved"); }
+  storageSet('mh:favorites', state.favorites);
+  updateHeartState(text);
+  renderFavorites();
+}
+function removeFavorite(text){
+  state.favorites = state.favorites.filter(f => f !== text);
+  storageSet('mh:favorites', state.favorites);
+  renderFavorites();
+  updateHeartState(document.getElementById('affirm-text').textContent);
+}
+function renderFavorites(){
+  const list = document.getElementById('fav-list');
+  if(!state.favorites.length){
+    list.innerHTML = '<div class="empty">Nothing saved yet — tap the heart on an affirmation you want to keep.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  state.favorites.slice().reverse().forEach(text => {
+    const item = document.createElement('div');
+    item.className = 'fav-item';
+    const p = document.createElement('p');
+    p.textContent = text;
+    const btn = document.createElement('button');
+    btn.className = 'x-btn'; btn.textContent = '✕';
+    btn.onclick = () => removeFavorite(text);
+    item.appendChild(p); item.appendChild(btn);
+    list.appendChild(item);
+  });
+}
+
+/* ================= CHECKS ================= */
+function renderChecksMoodRow(){
+  const row = document.getElementById('checks-mood-row');
+  row.innerHTML = '';
+  MOODS.forEach(m => {
+    const chip = document.createElement('button');
+    chip.className = 'chip' + (selectedCheckMood===m.name ? ' sel' : '');
+    chip.dataset.mood = m.name;
+    chip.textContent = m.name;
+    chip.onclick = () => { selectedCheckMood = m.name; renderChecksMoodRow(); };
+    row.appendChild(chip);
+  });
+}
+function renderEnergyRow(){
+  const row = document.getElementById('energy-row');
+  row.innerHTML = '';
+  for(let i=1;i<=5;i++){
+    const dot = document.createElement('button');
+    dot.className = 'dot-btn' + (i<=selectedEnergy ? ' sel':'');
+    dot.onclick = () => { selectedEnergy = i; renderEnergyRow(); };
+    row.appendChild(dot);
+  }
+}
+function logCheck(){
+  const mood = selectedCheckMood || 'Steady';
+  const note = document.getElementById('check-note').value.trim();
+  const entry = { id: Date.now(), date: new Date().toISOString(), mood, energy: selectedEnergy, note };
+  state.checks.push(entry);
+  storageSet('mh:checks', state.checks);
+  document.getElementById('check-note').value = '';
+  showToast("Check-in logged");
+  renderChecks();
+  renderHome();
+}
+function deleteCheck(id){
+  state.checks = state.checks.filter(c => c.id !== id);
+  storageSet('mh:checks', state.checks);
+  renderChecks();
+  renderHome();
+}
+function renderTerrainChart(){
+  const svg = document.getElementById('terrain-chart');
+  const recent = state.checks.slice(-10);
+  if(recent.length < 2){
+    svg.innerHTML = '<text x="200" y="48" text-anchor="middle" font-size="12" fill="var(--ink-soft)" font-family="Inter">Log a few check-ins to see your terrain</text>';
+    return;
+  }
+  const w = 400, h = 90, pad = 14;
+  const scoreOf = m => (MOODS.find(x=>x.name===m)||{score:3}).score;
+  const pts = recent.map((c,i) => {
+    const x = pad + (i * (w - pad*2) / (recent.length-1));
+    const y = h - pad - ((scoreOf(c.mood)-1) * (h-pad*2) / 4);
+    return {x,y,c};
+  });
+  let poly = pts.map(p=>p.x+','+p.y).join(' ');
+  let svgHtml = '<polyline points="'+poly+'" fill="none" stroke="var(--moss)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>';
+  pts.forEach(p => {
+    svgHtml += '<circle cx="'+p.x+'" cy="'+p.y+'" r="4.5" fill="'+MOOD_HEX[p.c.mood]+'" stroke="var(--paper-light)" stroke-width="1.5"/>';
+  });
+  svg.innerHTML = svgHtml;
+}
+function renderChecksHistory(){
+  const wrap = document.getElementById('checks-history');
+  if(!state.checks.length){
+    wrap.innerHTML = '<div class="empty">No check-ins yet. Your first one is above.</div>';
+    return;
+  }
+  wrap.innerHTML = '';
+  state.checks.slice().reverse().slice(0,12).forEach(c => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.innerHTML =
+      '<div class="mood-dot" style="background:'+MOOD_HEX[c.mood]+'"></div>' +
+      '<div class="meta"><div class="top">'+c.mood+' · Energy '+c.energy+'</div>' +
+      (c.note ? '<div class="note">'+escapeHtml(c.note)+'</div>' : '') + '</div>' +
+      '<div class="when">'+fmtDate(c.date)+'<br>'+fmtTime(c.date)+'</div>';
+    const del = document.createElement('button');
+    del.className = 'x-btn'; del.textContent = '✕'; del.style.marginLeft = '4px';
+    del.onclick = () => deleteCheck(c.id);
+    item.appendChild(del);
+    wrap.appendChild(item);
+  });
+}
+function renderChecks(){
+  renderChecksMoodRow();
+  renderEnergyRow();
+  renderTerrainChart();
+  renderChecksHistory();
+}
+
+/* ================= GROUNDING ================= */
+const BREATH_PATTERNS = {
+  box: [ {label:'Breathe in', dur:4, dir:'in'}, {label:'Hold', dur:4, dir:'hold'}, {label:'Breathe out', dur:4, dir:'out'}, {label:'Hold', dur:4, dir:'hold'} ],
+  calm: [ {label:'Breathe in', dur:4, dir:'in'}, {label:'Hold', dur:7, dir:'hold'}, {label:'Breathe out', dur:8, dir:'out'} ],
+  simple: [ {label:'Breathe in', dur:4, dir:'in'}, {label:'Breathe out', dur:6, dir:'out'} ]
+};
+let currentPattern = 'box';
+let phaseIndex = 0, secondsLeft = 0, breathTimer = null, breathing = false, cycles = 0;
+
+function selectPattern(key){
+  currentPattern = key;
+  document.querySelectorAll('.pattern-btn').forEach(b => b.classList.toggle('sel', b.dataset.pattern===key));
+  resetBreathing();
+}
+document.getElementById('pattern-switch').addEventListener('click', e => {
+  const btn = e.target.closest('.pattern-btn');
+  if(btn) selectPattern(btn.dataset.pattern);
+});
+
+function startPhase(){
+  const pattern = BREATH_PATTERNS[currentPattern];
+  const phase = pattern[phaseIndex];
+  secondsLeft = phase.dur;
+  document.getElementById('phase-label').textContent = phase.label;
+  const ring = document.getElementById('ring-wrap');
+  ring.style.transitionDuration = phase.dur + 's';
+  if(phase.dir === 'in') ring.style.transform = 'scale(1.05)';
+  else if(phase.dir === 'out') ring.style.transform = 'scale(0.72)';
+  updatePhaseCount();
+}
+function updatePhaseCount(){
+  document.getElementById('phase-count').textContent = secondsLeft;
+}
+function updateCycleText(){
+  document.getElementById('cycle-count').textContent = cycles + (cycles===1 ? ' cycle completed' : ' cycles completed');
+}
+function tickBreath(){
+  secondsLeft--;
+  if(secondsLeft <= 0){
+    phaseIndex = (phaseIndex+1) % BREATH_PATTERNS[currentPattern].length;
+    if(phaseIndex === 0){ cycles++; updateCycleText(); }
+    startPhase();
+  } else {
+    updatePhaseCount();
+  }
+}
+function toggleBreathing(){
+  breathing = !breathing;
+  const btn = document.getElementById('breathe-toggle');
+  if(breathing){
+    btn.textContent = 'Pause';
+    if(secondsLeft === 0) startPhase();
+    breathTimer = setInterval(tickBreath, 1000);
+  } else {
+    btn.textContent = 'Start';
+    clearInterval(breathTimer);
+  }
+}
+function resetBreathing(){
+  breathing = false;
+  clearInterval(breathTimer);
+  phaseIndex = 0; secondsLeft = 0; cycles = 0;
+  document.getElementById('breathe-toggle').textContent = 'Start';
+  document.getElementById('phase-label').textContent = 'Ready';
+  document.getElementById('phase-count').textContent = '—';
+  updateCycleText();
+  const ring = document.getElementById('ring-wrap');
+  ring.style.transitionDuration = '.6s';
+  ring.style.transform = 'scale(0.85)';
+}
+function toggleSenses(){
+  document.getElementById('senses-toggle').classList.toggle('open');
+  document.getElementById('senses-body').classList.toggle('open');
+}
+
+/* ================= JOURNAL ================= */
+function toggleCompose(){
+  composeOpen = !composeOpen;
+  document.getElementById('compose').classList.toggle('open', composeOpen);
+  if(composeOpen){
+    const prompt = JOURNAL_PROMPTS[state.journal.length % JOURNAL_PROMPTS.length];
+    document.getElementById('entry-body').placeholder = prompt;
+    document.getElementById('entry-title').value = '';
+    document.getElementById('entry-body').value = '';
+  }
+}
+function saveEntry(){
+  const title = document.getElementById('entry-title').value.trim();
+  const body = document.getElementById('entry-body').value.trim();
+  if(!body){ showToast("Write a little before saving"); return; }
+  const entry = { id: Date.now(), date: new Date().toISOString(), title, body };
+  state.journal.push(entry);
+  storageSet('mh:journal', state.journal);
+  toggleCompose();
+  showToast("Entry saved");
+  renderJournal();
+}
+function deleteEntry(id){
+  state.journal = state.journal.filter(e => e.id !== id);
+  storageSet('mh:journal', state.journal);
+  renderJournal();
+}
+function toggleEntry(id){
+  const el = document.getElementById('entry-'+id);
+  if(el) el.classList.toggle('open');
+}
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function renderJournal(){
+  const list = document.getElementById('journal-list');
+  if(!state.journal.length){
+    list.innerHTML = '<div class="empty">Your log is empty. Tap "+ New entry" to write your first one.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  state.journal.slice().reverse().forEach(e => {
+    const title = e.title || (e.body.length > 40 ? e.body.slice(0,40) + '…' : e.body);
+    const div = document.createElement('div');
+    div.className = 'entry';
+    div.id = 'entry-'+e.id;
+    div.innerHTML =
+      '<div class="entry-top" onclick="toggleEntry('+e.id+')">'+
+        '<div><div class="entry-date">'+fmtDate(e.date)+' · '+fmtTime(e.date)+'</div>'+
+        '<div class="entry-title">'+escapeHtml(title)+'</div>'+
+        '<div class="entry-preview">'+escapeHtml(e.body.slice(0,90))+(e.body.length>90?'…':'')+'</div>'+
+        '<div class="entry-full">'+escapeHtml(e.body)+'</div></div>'+
+      '</div>'+
+      '<div class="entry-actions"><button class="x-btn" onclick="deleteEntry('+e.id+')">Delete</button></div>';
+    list.appendChild(div);
+  });
+}
+
+/* ================= RENDER ALL ================= */
+function renderAll(){
+  renderHome();
+  renderAffirmation();
+  renderChecks();
+  renderJournal();
+  updateCycleText();
+}
+
+loadAll();
+</script>
+</body>
+</html>
