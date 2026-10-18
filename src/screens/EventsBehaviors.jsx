@@ -1,4 +1,5 @@
 import Squiggle from "../components/Squiggle";
+import CareNote from "../components/CareNote";
 import ChainDiagram from "../components/ChainDiagram";
 import CbtCycle from "../components/CbtCycle";
 
@@ -38,6 +39,8 @@ export default function EventsBehaviors() {
         </p>
         <CbtCycle />
       </div>
+
+      <CareNote />
     </section>
   );
 }

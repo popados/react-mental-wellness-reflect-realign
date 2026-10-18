@@ -2,6 +2,7 @@ import { useState } from "react";
 import { EMOTIONS } from "../data/emotions";
 import { fmtDate, fmtTime } from "../utils/dates";
 import Squiggle from "../components/Squiggle";
+import CareNote from "../components/CareNote";
 import IntensityScale from "../components/IntensityScale";
 import { bandOf } from "../data/intensity";
 
@@ -217,6 +218,8 @@ export default function Emotions({ entries, onSave, onDelete, showToast }) {
             ))
         )}
       </div>
+
+      <CareNote />
     </section>
   );
 }

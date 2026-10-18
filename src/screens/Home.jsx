@@ -2,12 +2,13 @@ import { useState } from "react";
 import { AFFIRMATIONS } from "../data/affirmations";
 import { dayOfYear, isSameDay } from "../utils/dates";
 import { SENSATIONS } from "../data/bodySensations";
+import CareNote from "../components/CareNote";
 
 function greeting(hr) {
   return hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening";
 }
 
-export default function Home({ checks, onNavigate, onQuickLog, onReset }) {
+export default function Home({ name, checks, onNavigate, onQuickLog, onReset }) {
   const now = new Date();
   const [flashSensation, setFlashSensation] = useState(null);
 
@@ -40,7 +41,10 @@ export default function Home({ checks, onNavigate, onQuickLog, onReset }) {
       <div className="eyebrow">REFLECT &amp; REALIGN</div>
       <div className="greet-row">
         <div>
-          <h1 className="title">{greeting(now.getHours())}</h1>
+          <h1 className="title">
+            {greeting(now.getHours())}
+            {name ? `, ${name}` : ""}
+          </h1>
           <div className="subtitle">
             {now.toLocaleDateString(undefined, {
               weekday: "long",
@@ -123,15 +127,11 @@ export default function Home({ checks, onNavigate, onQuickLog, onReset }) {
         </button>
       </div>
 
-      <div className="footnote">
-        This is a private space for reflection — not a substitute for
-        professional care. If things ever feel like too much, reaching out to
-        someone you trust or a professional can help.
-        <br />
+      <CareNote>
         <button className="reset-link" onClick={onReset}>
           Clear my saved data
         </button>
-      </div>
+      </CareNote>
     </section>
   );
 }

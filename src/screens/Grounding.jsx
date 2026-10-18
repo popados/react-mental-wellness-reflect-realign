@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { BREATH_PATTERNS } from "../data/prompts";
 import Squiggle from "../components/Squiggle";
+import CareNote from "../components/CareNote";
 import { playChime, primeAudio } from "../utils/sound";
 
 const PATTERN_LABELS = [
@@ -270,6 +271,8 @@ export default function Grounding() {
           </div>,
           document.body
         )}
+
+      <CareNote />
     </section>
   );
 }

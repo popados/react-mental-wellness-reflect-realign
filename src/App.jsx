@@ -11,6 +11,7 @@ import Emotions from "./screens/Emotions";
 import EventsBehaviors from "./screens/EventsBehaviors";
 import Digest from "./screens/Digest";
 import Insights from "./screens/Insights";
+import Profile from "./screens/Profile";
 import TabBar from "./components/TabBar";
 import Toast from "./components/Toast";
 
@@ -21,6 +22,7 @@ const KEYS = [
   "mh:habits",
   "mh:coping-log",
   "mh:resonance",
+  "mh:profile",
 ];
 
 export default function App() {
@@ -31,6 +33,7 @@ export default function App() {
   const [habits, setHabits] = useLocalStorage("mh:habits", []);
   const [copingLog, setCopingLog] = useLocalStorage("mh:coping-log", []);
   const [resonance, setResonance] = useLocalStorage("mh:resonance", {});
+  const [profile, setProfile] = useLocalStorage("mh:profile", {});
 
   const [toast, setToast] = useState({ message: "", show: false });
   const toastTimer = useRef(null);
@@ -144,10 +147,54 @@ export default function App() {
     setHabits((hs) => hs.filter((h) => h.id !== id));
   }
 
+  // ---- profile ----
+  function saveProfile(next) {
+    setProfile(next);
+    showToast("Profile saved");
+  }
+
+  function exportData() {
+    const data = {
+      exportedAt: new Date().toISOString(),
+      profile,
+      bodyAwareness: checks,
+      thoughtRecords: emotions,
+      habits,
+      copingLog,
+      savedAffirmations: favorites,
+      affirmationResonance: resonance,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `reflect-and-realign-${dateKey()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("Your data was exported");
+  }
+
+  const firstActivity = [
+    ...checks.map((c) => Date.parse(c.date)),
+    ...emotions.map((e) => Date.parse(e.date)),
+    ...copingLog.map((l) => Date.parse(l.date)),
+    ...habits.map((h) => h.id),
+  ];
+
+  const profileStats = [
+    { label: "Body awareness check-ins", value: checks.length },
+    { label: "Thought records", value: emotions.length },
+    {
+      label: "Habit check-offs",
+      value: habits.reduce((sum, h) => sum + h.completions.length, 0),
+    },
+    { label: "Coping skills used", value: copingLog.length },
+  ];
+
   function resetAll() {
     if (
       !window.confirm(
-        "This clears every affirmation you've saved, every body awareness check-in, every habit, every coping skill you've logged, and every thought record. This can't be undone. Continue?"
+        "This clears your profile, every affirmation you've saved, every body awareness check-in, every habit, every coping skill you've logged, and every thought record. This can't be undone. Continue?"
       )
     )
       return;
@@ -158,6 +205,7 @@ export default function App() {
     setHabits([]);
     setCopingLog([]);
     setResonance({});
+    setProfile({});
     showToast("Your data has been cleared");
   }
 
@@ -166,6 +214,7 @@ export default function App() {
       <main id="screens">
         {screen === "home" && (
           <Home
+            name={profile.name}
             checks={checks}
             onNavigate={navigate}
             onQuickLog={quickLog}
@@ -216,6 +265,18 @@ export default function App() {
         )}
         {screen === "insights" && (
           <Insights checks={checks} emotions={emotions} habits={habits} />
+        )}
+        {screen === "profile" && (
+          <Profile
+            // Remount after a reset so the form picks up the cleared profile.
+            key={JSON.stringify(profile)}
+            profile={profile}
+            onSave={saveProfile}
+            stats={profileStats}
+            firstActivity={firstActivity}
+            onExport={exportData}
+            onReset={resetAll}
+          />
         )}
       </main>
 

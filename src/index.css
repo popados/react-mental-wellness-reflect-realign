@@ -38,9 +38,12 @@ body{
 
 #root{width:100%;}
 
+/* Fixed to the viewport so <main> scrolls on its own and the bottom bar /
+   sidebar stay on screen. dvh accounts for mobile browser toolbars. */
 .app{
   width:100%;
-  min-height:100vh;
+  height:100vh;
+  height:100dvh;
   background:var(--paper);
   position:relative;
   display:flex;
@@ -169,6 +172,10 @@ h1.title{
 .cta-band .btn-ghost{border-color:rgba(251,248,241,0.5);color:var(--paper-light);}
 
 .footnote{font-size:12px;color:var(--ink-soft);line-height:1.5;margin-top:30px;padding-top:16px;border-top:1px solid var(--line);}
+.crisis-line{margin:10px 0 0;padding:10px 12px;border-radius:var(--radius-sm);background:var(--grey-tint);color:var(--ink);}
+/* Darker than --moss-deep, which is only 3.71:1 on --grey-tint; this is 5.28:1. */
+.crisis-line a{color:#2E6396;font-weight:700;text-underline-offset:2px;}
+.footnote .reset-link{display:block;}
 .reset-link{background:none;border:none;color:var(--ink-soft);text-decoration:underline;font-size:12px;cursor:pointer;padding:0;margin-top:10px;font-family:'Inter',sans-serif;}
 
 /* ---------- affirmation screen ---------- */
@@ -490,6 +497,27 @@ h1.title{
 .hc-name{font-weight:600;}
 .hc-stat{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);white-space:nowrap;}
 
+/* ---------- profile ---------- */
+.btn:disabled{opacity:0.55;cursor:default;transform:none;}
+.btn-primary:disabled:hover{background:var(--moss);}
+.profile-head{display:flex;align-items:center;gap:16px;margin-top:4px;margin-bottom:14px;}
+.profile-avatar{
+  width:60px;height:60px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--moss-deep);color:#fff;
+  font-family:'Fraunces',serif;font-size:28px;font-weight:560;
+}
+.profile-avatar svg{width:30px;height:30px;fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;}
+.profile-id{min-width:0;}
+.profile-name{font-family:'Fraunces',serif;font-size:21px;font-weight:560;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.profile-sub{font-size:13px;color:var(--ink-soft);margin-top:3px;}
+.profile-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.profile-stat{background:var(--moss-tint);border-radius:var(--radius-sm);padding:12px 13px;}
+/* --ink-soft is only 4.15:1 on --moss-tint; this darker grey clears AA (5.66:1). */
+.profile-stat .digest-sub,.digest-tile .digest-sub,.digest-tile .digest-k{color:#4B5C6E;}
+.profile-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.profile-actions .reset-link{margin-top:0;}
+
 /* ---------- "more" sheet ---------- */
 .sheet-overlay{align-items:flex-end;padding:0;}
 .more-sheet{width:100%;max-width:var(--content-max);background:var(--paper-light);border-radius:22px 22px 0 0;padding:14px 16px 22px;box-shadow:0 -12px 40px rgba(29,43,58,0.25);animation:sheetIn .25s cubic-bezier(.2,.7,.3,1);}
@@ -534,6 +562,7 @@ h1.title{
     display:flex;flex-direction:column;align-items:stretch;
     border-top:none;border-right:1px solid var(--line);
     padding:20px 12px;
+    overflow-x:hidden;overflow-y:auto;
     transition:width .25s ease;
   }
   .tabbar.expanded{width:232px;}
@@ -571,8 +600,10 @@ h1.title{
   .tabbar.expanded .brand-full{display:block;}
   .tabbar.expanded .brand-mono{display:none;}
   @keyframes brandIn{from{opacity:0;}to{opacity:1;}}
-  .tabbar-inner{flex-direction:column;max-width:none;margin:0;width:100%;gap:4px;}
+  .tabbar-inner{flex-direction:column;max-width:none;margin:0;width:100%;gap:4px;flex:1;}
   .tab.secondary{display:flex;}
+  .tab.pin-bottom{margin-top:auto;position:relative;}
+  .tab.pin-bottom::before{content:"";position:absolute;top:-9px;left:0;right:0;height:1px;background:var(--line);}
   .tab.tab-more{display:none;}
   .tab{
     flex:0 0 auto;flex-direction:row;justify-content:flex-start;

@@ -108,6 +108,19 @@ const TABS = [
       </>
     ),
   },
+  {
+    id: "profile",
+    label: "Profile",
+    fullLabel: "Profile",
+    pinBottom: true,
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="9.5" />
+        <circle cx="12" cy="10" r="3.2" />
+        <path d="M6.3 18.6c1.3-2.3 3.3-3.6 5.7-3.6s4.4 1.3 5.7 3.6" />
+      </>
+    ),
+  },
 ];
 
 const SECONDARY = TABS.filter((t) => !t.primary);
@@ -193,7 +206,9 @@ export default function TabBar({ current, onNavigate }) {
         {TABS.map((t) => (
           <button
             key={t.id}
-            className={`tab${t.primary ? "" : " secondary"}${current === t.id ? " active" : ""}`}
+            className={`tab${t.primary ? "" : " secondary"}${t.pinBottom ? " pin-bottom" : ""}${
+              current === t.id ? " active" : ""
+            }`}
             onClick={() => onNavigate(t.id)}
           >
             <svg viewBox="0 0 24 24">{t.icon}</svg>
